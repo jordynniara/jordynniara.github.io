@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import PropTypes from 'prop-types';
 
+// Shared styling configuration
 const variantClasses = {
     sky: "btn-sky",
     strawberry: "btn-strawberry",
@@ -13,6 +14,20 @@ const sizeClasses = {
   lg: "px-5 py-2.5 text-base md:px-8 md:py-4 md:text-lg lg:px-10 lg:py-5 lg:text-xl xl:text-2xl",
 };
 
+// Helper to build class names
+const buildClasses = (baseClass, variant, size, className) => {
+  return `${baseClass} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim();
+};
+
+// Shared prop types
+const sharedPropTypes = {
+  variant: PropTypes.oneOf(['default', 'inchworm', 'sky', 'strawberry']),
+  size: PropTypes.oneOf(['xs', 'sm', 'default', 'lg']),
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+// ===== BUTTON COMPONENT =====
 export const Button = ({
   variant = "strawberry",
   size = "default",
@@ -20,8 +35,7 @@ export const Button = ({
   children,
   ...props
 }) => {
-  const baseClasses = "btn";
-  const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+  const classes = buildClasses("btn", variant, size, className);
   return (
     <button className={classes} {...props}>
       {children}
@@ -29,60 +43,23 @@ export const Button = ({
   );
 };
 
-export const LinkButton = ({
+Button.propTypes = {
+  ...sharedPropTypes,
+  onClick: PropTypes.func,
+  disabled: PropTypes.bool,
+  type: PropTypes.oneOf(['button', 'submit', 'reset']),
+};
+
+// ===== INTERNAL LINK COMPONENT (React Router) =====
+const InternalLink = ({
   variant = "strawberry",
   size = "default",
   className = "",
   to = "/",
-  href = null,
-  download = null,
   children,
   ...props
 }) => {
-  const baseClasses = "link-btn";
-  const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
-  if (download) {
-    return (
-      <a 
-        href={href} 
-        download={download}
-        className={classes}
-        {...props}
-      >
-        {children}
-      </a>
-    );
-  }
-
-  if (to?.startsWith('#') || href?.startsWith('#')) {
-    const anchorHref = to || href;
-    return (
-      <a 
-        href={anchorHref}
-        className={classes}
-        {...props}
-      >
-        {children}
-      </a>
-    );
-  }
-
-  // External link
-  if (href) {
-    return (
-      <a 
-        href={href} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className={classes}
-        {...props}
-      >
-        {children}
-      </a>
-    );
-  }
-
-  // Internal link
+  const classes = buildClasses("link-btn", variant, size, className);
   return (
     <Link to={to} className={classes} {...props}>
       {children}
@@ -90,20 +67,168 @@ export const LinkButton = ({
   );
 };
 
-Button.propTypes = {
-  variant: PropTypes.oneOf(['default', 'inchworm', 'sky', 'strawberry']),
-  size: PropTypes.oneOf(['xs', 'sm', 'default', 'lg']),
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func,
-  disabled: PropTypes.bool,
+InternalLink.propTypes = {
+  ...sharedPropTypes,
+  to: PropTypes.string.isRequired,
+};
+
+// ===== EXTERNAL LINK COMPONENT =====
+const ExternalLink = ({
+  variant = "strawberry",
+  size = "default",
+  className = "",
+  href,
+  children,
+  ...props
+}) => {
+  const classes = buildClasses("link-btn", variant, size, className);
+  return (
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className={classes}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
+
+ExternalLink.propTypes = {
+  ...sharedPropTypes,
+  href: PropTypes.string.isRequired,
+};
+
+// ===== ANCHOR LINK COMPONENT (same page) =====
+const AnchorLink = ({
+  variant = "strawberry",
+  size = "default",
+  className = "",
+  href,
+  children,
+  ...props
+}) => {
+  const classes = buildClasses("link-btn", variant, size, className);
+  return (
+    <a 
+      href={href}
+      className={classes}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
+
+AnchorLink.propTypes = {
+  ...sharedPropTypes,
+  href: PropTypes.string.isRequired,
+};
+
+// ===== DOWNLOAD LINK COMPONENT =====
+const DownloadLink = ({
+  variant = "strawberry",
+  size = "default",
+  className = "",
+  href,
+  download,
+  children,
+  ...props
+}) => {
+  const classes = buildClasses("link-btn", variant, size, className);
+  return (
+    <a 
+      href={href} 
+      download={download}
+      className={classes}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
+
+DownloadLink.propTypes = {
+  ...sharedPropTypes,
+  href: PropTypes.string.isRequired,
+  download: PropTypes.string,
+};
+
+// ===== LEGACY LINKBUTTON (for backwards compatibility) =====
+// This component maintains the old API but delegates to the new components
+export const LinkButton = ({
+  variant = "strawberry",
+  size = "default",
+  className = "",
+  to,
+  href,
+  download,
+  children,
+  ...props
+}) => {
+  // Download link
+  if (download && href) {
+    return (
+      <DownloadLink 
+        variant={variant} 
+        size={size} 
+        className={className} 
+        href={href} 
+        download={download}
+        {...props}
+      >
+        {children}
+      </DownloadLink>
+    );
+  }
+
+  // Anchor link (same page)
+  if (to?.startsWith('#') || href?.startsWith('#')) {
+    return (
+      <AnchorLink 
+        variant={variant} 
+        size={size} 
+        className={className} 
+        href={to || href}
+        {...props}
+      >
+        {children}
+      </AnchorLink>
+    );
+  }
+
+  // External link
+  if (href) {
+    return (
+      <ExternalLink 
+        variant={variant} 
+        size={size} 
+        className={className} 
+        href={href}
+        {...props}
+      >
+        {children}
+      </ExternalLink>
+    );
+  }
+
+  // Internal link (React Router)
+  return (
+    <InternalLink 
+      variant={variant} 
+      size={size} 
+      className={className} 
+      to={to || '/'}
+      {...props}
+    >
+      {children}
+    </InternalLink>
+  );
 };
 
 LinkButton.propTypes = {
-  variant: PropTypes.oneOf(['default', 'inchworm', 'sky', 'strawberry']),
-  size: PropTypes.oneOf(['xs', 'sm', 'default', 'lg']),
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired,
+  ...sharedPropTypes,
   to: PropTypes.string,
   href: PropTypes.string,
   download: PropTypes.string,
