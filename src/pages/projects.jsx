@@ -39,10 +39,10 @@ export const Projects = () => {
         }))
     }));
     const projectTypeMap = [
-        { type: "prototype", label: "Prototypes & Case Studies", description: "Explore innovative prototypes and in-depth case studies." },
-        { type: "research", label: "Research & Design", description: "Delve into research findings and design processes." },
-        { type: "analysis", label: "Analyses & Evaluations", description: "Examine analyses and evaluations of various projects." },
-        { type: "art", label: "Art", description: "Discover artistic projects and creative expressions." }
+        { type: "prototype", label: "Prototypes & Case Studies", description: "End-to-end R&D projects that culminated in a prototype." },
+        { type: "research", label: "Research & Design", description: "Research projects that dove deep into understanding user needs and behaviors with concluding design decisions." },
+        { type: "analysis", label: "Analyses & Evaluations", description: "A critical look into some existing designs." },
+        { type: "art", label: "Art & Graphics", description: "Graphic design heavy projects and some personal artsy things." }
     ];
     const mascots=[inchwormMascot, strawberryMascot, skyMascot]
     var navDrawerIndex = [];
