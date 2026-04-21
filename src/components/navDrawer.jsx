@@ -31,7 +31,7 @@ export const NavDrawer = ({
     <Fragment>
         {/* Drawer with button inside */}
         <div
-            className={`fixed left-0 top-1/2 -translate-y-1/2 z-20 transition-transform duration-300 ${
+            className={`fixed left-0 top-1/2 -translate-y-1/2 z-40 transition-transform duration-300 ${
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
         >
